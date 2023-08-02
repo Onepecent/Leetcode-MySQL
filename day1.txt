@@ -53,8 +53,12 @@ World 表：
 
 # 方法二：使用 WHERE 子句和 UNION
 # 使用 or 会使索引会失效，在数据量较大的时候查找效率较低，通常建议使用 union 代替 or
-select t.name, t.population, t.area from world t
-    where t.area >= 3000000
-    union
-select t.name, t.population, t.area from world t
-    where t.population >= 25000000
+# Write your MySQL query statement beloow
+select name, population, area from world where population >= 25000000
+union
+select name, population, area from world where area >= 3000000;
+
+来自overflow和佬的解答：
+
+解题思路
+or和union的区别: 对于单列来说，用or是没有任何问题的，但是or涉及到多个列的时候，每次select只能选取一个index，如果选择了area，population就需要进行table-scan，即全部扫描一遍，但是使用union就可以解决这个问题，分别使用area和population上面的index进行查询。 但是这里还会有一个问题就是，UNION会对结果进行排序去重，可能会降低一些performance，所以最佳的选择应该是两种方法都进行尝试比较。 （stackoverflow链接: https://stackoverflow.com/questions/13750475/sql-performance-union-vs-or）
